@@ -57,16 +57,59 @@ bot.onText(/\/stop/, async (msg) => {
 
 // Set up admin panel
 bot.onText(/\/admin/, (msg) => {
-    const chatId = msg.chat.id;
-
-    // Check if user is admin
-    if (chatId === process.env.ADMIN_CHAT_ID) {
-        // Show admin panel
-        bot.sendMessage(chatId, 'Welcome to the admin panel.');
-    } else {
-        bot.sendMessage(chatId, 'You are not authorized to access the admin panel.');
-    }
+  const chatId = msg.chat.id;
+  console.log('ID',chatId);
+  // Check if user is admin
+  if (chatId === process.env.ADMIN_CHAT_ID) {
+    console.log('HI');
+      // Show admin panel
+      bot.sendMessage(chatId, 'Welcome to the admin panel. What would you like to do?', {
+          reply_markup: {
+              keyboard: [
+                  ['Update bot settings'],
+                  ['Manage user accounts']
+              ]
+          }
+      });
+  } else {
+      bot.sendMessage(chatId, 'You are not authorized to access the admin panel.');
+  }
 });
+
+// Handle admin commands
+bot.onText(/Update bot settings/, (msg) => {
+  const chatId = msg.chat.id;
+
+  // Check if user is admin
+  if (chatId === process.env.ADMIN_CHAT_ID) {
+      // Prompt user for new settings
+      bot.sendMessage(chatId, 'Enter the new bot settings:');
+  } else {
+      bot.sendMessage(chatId, 'You are not authorized to perform this action.');
+  }
+});
+
+bot.onText(/Manage user accounts/, (msg) => {
+  const chatId = msg.chat.id;
+
+  // Check if user is admin
+  if (chatId === process.env.ADMIN_CHAT_ID) {
+      // Show list of user accounts
+      bot.sendMessage(chatId, 'List of user accounts:');
+      Subscriber.find({}, (err, subscribers) => {
+          if (err) {
+              console.log(err);
+          } else {
+              subscribers.forEach((subscriber) => {
+                  bot.sendMessage(chatId, `${subscriber.chatId} - Subscribed: ${subscriber.subscribed}`);
+              });
+          }
+      });
+  } else {
+      bot.sendMessage(chatId, 'You are not authorized to perform this action.');
+  }
+});
+
 
 bot.on('message', (msg) => {
   console.log(msg.chat.id);
